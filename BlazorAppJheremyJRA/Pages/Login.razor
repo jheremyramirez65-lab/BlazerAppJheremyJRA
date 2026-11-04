@@ -1,0 +1,88 @@
+﻿@page "/login"
+
+<h3>Iniciar sesión</h3>
+
+<div class="container mt-4">
+    <div class="row justify-content-center">
+        <div class="col-md-5">
+
+            <div class="card shadow p-4">
+
+                <h2 class="text-center mb-4">
+                    Iniciar sesión
+                </h2>
+
+                <div class="mb-3">
+                    <label class="form-label">
+                        Correo electrónico / Usuario
+                    </label>
+
+                    <input type="text"
+                           class="form-control"
+                           @bind="usuario"
+                           placeholder="Ingrese su usuario" />
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label">
+                        Contraseña
+                    </label>
+
+                    <input type="password"
+                           class="form-control"
+                           @bind="contrasena"
+                           placeholder="Ingrese su contraseña" />
+                </div>
+
+                @if (!string.IsNullOrEmpty(mensajeError))
+                {
+                    <div class="alert alert-danger">
+                        @mensajeError
+                    </div>
+                }
+
+                <button class="btn btn-primary w-100"
+                        @onclick="IniciarSesion">
+                    Iniciar sesión
+                </button>
+
+                <div class="text-center mt-3">
+
+                    <a href="/recuperar-password">
+                        ¿Olvidaste tu contraseña?
+                    </a>
+
+                </div>
+
+                <div class="text-center mt-2">
+
+                    <a href="/registro">
+                        Crear una cuenta
+                    </a>
+
+                </div>
+
+            </div>
+
+        </div>
+    </div>
+</div>
+
+@code {
+
+    private string usuario = "";
+    private string contrasena = "";
+    private string mensajeError = "";
+
+    private void IniciarSesion()
+    {
+        if (string.IsNullOrWhiteSpace(usuario) ||
+            string.IsNullOrWhiteSpace(contrasena))
+        {
+            mensajeError = "Debe ingresar usuario y contraseña.";
+            return;
+        }
+
+        mensajeError = "";
+    }
+}

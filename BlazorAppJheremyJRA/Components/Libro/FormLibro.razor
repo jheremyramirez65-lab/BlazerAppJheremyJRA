@@ -1,0 +1,588 @@
+﻿@using BlazorAppJheremyJRA.Entities
+@using BlazorAppJheremyJRA.Services
+@using Microsoft.AspNetCore.Components.Forms
+
+@inject LibroService libroService
+@inject TipoLibroService tipoLibroService
+@inject CategoriaService categoriaService
+@inject NavigationManager navigationManager
+@inject AutorService autorService
+
+
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h2>@titulo</h2>
+
+    <button type="button"
+            class="btn btn-primary"
+            @onclick="BuscarLibro">
+        <i class="bi bi-search"></i>
+        Buscar Libro
+    </button>
+</div>
+
+
+<EditForm Model="@oLibroFormCLS"
+          OnValidSubmit="@Guardar">
+
+    <DataAnnotationsValidator />
+
+    <ValidationSummary class="alert alert-danger" />
+
+
+    <div class="row">
+
+
+        <div class="col-md-6 mb-3">
+
+            <label class="form-label">
+                <i class="bi bi-hash"></i>
+                ID Libro
+            </label>
+
+            <InputNumber class="form-control"
+                         @bind-Value="oLibroFormCLS.IdLibro"
+                         readonly />
+
+        </div>
+
+
+        <div class="col-md-6 mb-3">
+
+            <label class="form-label">
+                <i class="bi bi-upc"></i>
+                Código
+            </label>
+
+            <InputText class="form-control"
+                       @bind-Value="oLibroFormCLS.Codigo" />
+
+            <ValidationMessage For="@(() => oLibroFormCLS.Codigo)" />
+
+        </div>
+
+
+        <div class="col-md-6 mb-3">
+
+            <label class="form-label">
+                <i class="bi bi-book"></i>
+                Título
+            </label>
+
+            <InputText class="form-control"
+                       @bind-Value="oLibroFormCLS.Titulo" />
+
+            <ValidationMessage For="@(() => oLibroFormCLS.Titulo)" />
+
+        </div>
+
+
+        <div class="col-md-6 mb-3">
+
+            <label class="form-label">
+                <i class="bi bi-card-text"></i>
+                Resumen
+            </label>
+
+            <InputTextArea class="form-control"
+                           @bind-Value="oLibroFormCLS.Resumen" />
+
+            <ValidationMessage For="@(() => oLibroFormCLS.Resumen)" />
+
+        </div>
+
+
+        <div class="col-md-6 mb-3">
+
+            <label class="form-label">
+                <i class="bi bi-person"></i>
+                Seleccione Autor
+            </label>
+
+            <InputSelect class="form-select"
+                         @bind-Value="oLibroFormCLS.iidautor">
+
+                <option value="0">
+                    --Seleccione--
+                </option>
+
+                @foreach (var item in listaautor)
+                {
+                    <option value="@item.idautor">
+                        @item.nombreautor
+                    </option>
+                }
+
+            </InputSelect>
+
+        </div>
+
+
+        <div class="col-md-6 mb-3">
+
+            <label class="form-label">
+                <i class="bi bi-building"></i>
+                Editorial
+            </label>
+
+            <InputText class="form-control"
+                       @bind-Value="oLibroFormCLS.Editorial" />
+
+        </div>
+
+       
+
+
+        <div class="col-md-6 mb-3">
+
+            <label class="form-label">
+                <i class="bi bi-calendar"></i>
+                Año
+            </label>
+
+            <InputNumber class="form-control"
+                         @bind-Value="oLibroFormCLS.Anio" />
+
+        </div>
+
+
+        <div class="mt-3">
+            <label>Nro. Paginas</label>
+
+            <InputNumber class="form-control"
+                         @bind-Value="oLibroFormCLS.NumeroPaginas" />
+
+            <ValidationMessage For="(() => oLibroFormCLS.NumeroPaginas)" />
+        </div>
+
+
+        <div class="mt-3">
+            <label>Stock</label>
+
+            <InputNumber class="form-control"
+                         @bind-Value="oLibroFormCLS.Stock" />
+
+            <ValidationMessage For="(() => oLibroFormCLS.Stock)" />
+        </div>
+
+
+        @* <div class="col-md-6 mb-3">
+            <label class="form-label">
+                <i class="bi bi-tags"></i>
+                Categoría
+            </label>
+
+            <InputSelect class="form-select"
+                         @bind-Value="oLibroFormCLS.Categoria">
+
+                <option value="">
+                    Seleccione una categoría
+                </option>
+
+                <option value="Programación">
+                    Programación
+                </option>
+
+                <option value="Base de Datos">
+                    Base de Datos
+                </option>
+
+                <option value="Informática">
+                    Informática
+                </option>
+
+                <option value="Ingeniería">
+                    Ingeniería
+                </option>
+
+                <option value="Literatura">
+                    Literatura
+                </option>
+
+                <option value="Programacion Web II">
+                    Programacion Web II
+                </option>
+
+                <option value="Ingles I">
+                    Ingles I
+                </option>
+
+                <option value="Ingles II">
+                    Ingles II
+                </option>
+
+            </InputSelect>
+        </div> *@
+
+        
+        <div class="col-md-6 mb-3">
+            <label class="form-label">
+                <i class="bi bi-tags"></i>
+                Categorías del libro
+            </label>
+
+            <div class="border rounded p-3">
+                @if (listaCategorias.Count == 0)
+                {
+                    <p class="text-muted mb-0">
+                        No hay categorías registradas.
+                    </p>
+                }
+                else
+                {
+                    @foreach (var categoria in listaCategorias)
+                    {
+                        <div class="form-check" @key="categoria.IdCategoria">
+                            <input type="checkbox"
+                                   class="form-check-input"
+                                   id="@($"categoria_{categoria.IdCategoria}")"
+                                   checked="@oLibroFormCLS.IdCategorias.Contains(categoria.IdCategoria)"
+                                   @onchange="(e) => CambiarCategoria(categoria.IdCategoria, e)" />
+
+                            <label class="form-check-label"
+                                   for="@($"categoria_{categoria.IdCategoria}")">
+                                @categoria.Nombre
+                            </label>
+                        </div>
+                    }
+                }
+            </div>
+
+            <small class="text-muted">
+                Puedes seleccionar una o varias categorías.
+            </small>
+        </div>
+
+
+
+        <div class="col-md-6 mb-3">
+
+            <label class="form-label">
+                <i class="bi bi-bookmark"></i>
+                Tipo de Libro
+            </label>
+
+            <InputSelect class="form-select"
+                         @bind-Value="oLibroFormCLS.idTipoLibro">
+
+                <option value="0">
+                    Seleccione
+                </option>
+
+                @foreach (var tipo in listaTipo)
+                {
+                    <option value="@tipo.idTipoLibro">
+                        @tipo.nombreTipoLibro
+                    </option>
+                }
+
+            </InputSelect>
+
+            <ValidationMessage For="@(() => oLibroFormCLS.idTipoLibro)" />
+
+        </div>
+
+
+        <!-- IMAGEN -->
+
+        <div class="col-md-6 mb-3">
+
+            <label class="form-label">
+                <i class="bi bi-image"></i>
+                Seleccionar imagen
+            </label>
+
+            <InputFile OnChange="SeleccionarImagen"
+                       accept="image/*"
+                       class="form-control" />
+
+
+            <div class="mt-3">
+
+                <img src="@imagenPreview"
+                     width="150"
+                     height="150"
+                     class="img-thumbnail"
+                     alt="Vista previa" />
+
+            </div>
+
+        </div>
+
+
+        <!-- PDF -->
+
+        <div class="col-md-6 mb-3">
+
+            <label class="form-label">
+                <i class="bi bi-file-earmark-pdf"></i>
+                Seleccionar archivo PDF
+            </label>
+
+
+            <InputFile OnChange="SeleccionarArchivo"
+                       accept=".pdf,application/pdf"
+                       class="form-control" />
+
+
+            @if (!string.IsNullOrEmpty(
+                oLibroFormCLS.nombrearchivo))
+            {
+                <div class="mt-2">
+
+                    <strong>
+                        Archivo:
+                    </strong>
+
+                    @oLibroFormCLS.nombrearchivo
+
+                </div>
+            }
+
+        </div>
+
+
+    </div>
+
+
+    <div class="mt-3">
+
+        <button type="submit"
+                class="btn btn-success me-2">
+
+            <i class="bi bi-save"></i>
+
+            @(idLibro == 0
+                ? "Guardar Libro"
+                : "Actualizar Libro")
+
+        </button>
+
+    </div>
+
+</EditForm>
+
+
+@code {
+
+    [Parameter]
+    public int idLibro { get; set; }
+
+
+    [Parameter]
+    public EventCallback<LibroFormCLS> GuardarClick { get; set; }
+
+
+    private string titulo = "Agregar Libro";
+
+
+    private LibroFormCLS oLibroFormCLS = new();
+
+
+    private List<TipoLibroCLS> listaTipo = new();
+
+
+    private string imagenPreview =
+        "img/usuario.png";
+
+    private List<CategoriaCLS> listaCategorias = new();
+
+
+    protected override async Task OnParametersSetAsync()
+    {
+        listaTipo = await tipoLibroService.listarTipoLibros();
+
+        listaautor = await autorService.listarAutoresCombo();
+
+        listaCategorias = await categoriaService.Listar();
+
+        if (idLibro == 0)
+        {
+            titulo = "Agregar Libro";
+
+            oLibroFormCLS = new LibroFormCLS
+            {
+                Imagen = "img/usuario.png"
+            };
+
+            imagenPreview = "img/usuario.png";
+
+            return;
+        }
+
+        var libro = await libroService.recuperarLibroPorId(idLibro);
+
+        if (libro == null)
+        {
+            return;
+        }
+
+        oLibroFormCLS = libro;
+
+        titulo = "Editar Libro: " + oLibroFormCLS.Titulo;
+
+        if (oLibroFormCLS.imagen != null &&
+            oLibroFormCLS.imagen.Length > 0)
+        {
+            imagenPreview =
+                "data:image/png;base64," +
+                Convert.ToBase64String(oLibroFormCLS.imagen);
+        }
+        else
+        {
+            imagenPreview =
+                string.IsNullOrEmpty(oLibroFormCLS.Imagen)
+                    ? "img/usuario.png"
+                    : oLibroFormCLS.Imagen;
+        }
+    }
+
+
+    
+    private void CambiarCategoria(
+        int idCategoria,
+        ChangeEventArgs e)
+    {
+        bool seleccionado = e.Value is bool valor && valor;
+
+        if (seleccionado)
+        {
+            if (!oLibroFormCLS.IdCategorias.Contains(idCategoria))
+            {
+                oLibroFormCLS.IdCategorias.Add(idCategoria);
+            }
+        }
+        else
+        {
+            oLibroFormCLS.IdCategorias.Remove(idCategoria);
+        }
+    }
+
+
+
+    private async Task SeleccionarImagen(
+        InputFileChangeEventArgs e)
+    {
+        var file = e.File;
+
+        if (file == null)
+            return;
+
+
+        using var stream =
+            file.OpenReadStream(
+                maxAllowedSize: 10 * 1024 * 1024
+            );
+
+
+        using var ms = new MemoryStream();
+
+
+        await stream.CopyToAsync(ms);
+
+
+        var buffer = ms.ToArray();
+
+
+        oLibroFormCLS.imagen =
+            buffer;
+
+
+        imagenPreview =
+            "data:" +
+            file.ContentType +
+            ";base64," +
+            Convert.ToBase64String(
+                buffer
+            );
+
+
+        await InvokeAsync(
+            StateHasChanged
+        );
+    }
+
+
+    private async Task SeleccionarArchivo(
+        InputFileChangeEventArgs e)
+    {
+        var file = e.File;
+
+        if (file == null)
+            return;
+
+
+        if (!file.Name.EndsWith(
+                ".pdf",
+                StringComparison.OrdinalIgnoreCase))
+        {
+            return;
+        }
+
+
+        oLibroFormCLS.nombrearchivo =
+            file.Name;
+
+
+        using var stream =
+            file.OpenReadStream(
+                maxAllowedSize:
+                20 * 1024 * 1024
+            );
+
+
+        using var ms =
+            new MemoryStream();
+
+
+        await stream.CopyToAsync(ms);
+
+
+        oLibroFormCLS.archivo =
+            ms.ToArray();
+
+
+        await InvokeAsync(
+            StateHasChanged
+        );
+    }
+
+
+    private async Task Guardar()
+    {
+        await GuardarClick.InvokeAsync(
+            oLibroFormCLS
+        );
+    }
+
+
+    public async Task LimpiarFormulario()
+    {
+        oLibroFormCLS =
+            new LibroFormCLS
+            {
+                Imagen = "img/usuario.png"
+            };
+
+
+        imagenPreview =
+            "img/usuario.png";
+
+
+        titulo =
+            "Agregar Libro";
+
+
+        await InvokeAsync(
+            StateHasChanged
+        );
+    }
+
+
+    private void BuscarLibro()
+    {
+        navigationManager.NavigateTo("/libro");
+    }
+
+    public List<AutorCLS> listaautor { get; set; } = new();
+
+}

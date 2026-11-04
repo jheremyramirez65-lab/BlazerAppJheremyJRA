@@ -1,0 +1,122 @@
+﻿@page "/categoria"
+@using BlazorAppJheremyJRA.Services
+@inject CategoriaService servicio
+
+<PageTitle>Categorías</PageTitle>
+
+<h3>Gestión de categorías</h3>
+
+<div class="card p-3 mb-3">
+    <label class="form-label">Nombre de la categoría</label>
+
+    <input class="form-control"
+           @bind="nombre"
+           placeholder="Ejemplo: Novela" />
+
+    <button class="btn btn-primary mt-3"
+            @onclick="Registrar">
+        Registrar categoría
+    </button>
+</div>
+
+@if (!string.IsNullOrWhiteSpace(mensaje))
+{
+    <div class="alert @claseMensaje">
+        @mensaje
+    </div>
+}
+
+<h4>Categorías registradas</h4>
+
+@if (categorias == null)
+{
+    <p>Cargando categorías...</p>
+}
+else if (categorias.Count == 0)
+{
+    <p>No hay categorías registradas.</p>
+}
+else
+{
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Nombre</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var categoria in categorias)
+            {
+                <tr>
+                    <td>@categoria.IdCategoria</td>
+                    <td>@categoria.Nombre</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+
+@code {
+    private List<CategoriaCLS>? categorias;
+    private string nombre = "";
+    private string mensaje = "";
+    private string claseMensaje = "alert-info";
+
+    protected override async Task OnInitializedAsync()
+    {
+        await CargarCategorias();
+    }
+
+    private async Task CargarCategorias()
+    {
+        try
+        {
+            categorias = await servicio.Listar();
+        }
+        catch (Exception)
+        {
+            categorias = new List<CategoriaCLS>();
+            mensaje = "No se pudieron cargar las categorías. Verifica que la API esté ejecutándose.";
+            claseMensaje = "alert-danger";
+        }
+    }
+
+    private async Task Registrar()
+    {
+        if (string.IsNullOrWhiteSpace(nombre))
+        {
+            mensaje = "Escribe el nombre de la categoría.";
+            claseMensaje = "alert-warning";
+            return;
+        }
+
+        try
+        {
+            var nuevaCategoria = new CategoriaCLS
+            {
+                Nombre = nombre.Trim()
+            };
+
+            var respuesta = await servicio.Registrar(nuevaCategoria);
+
+            if (respuesta.IsSuccessStatusCode)
+            {
+                nombre = "";
+                mensaje = "Categoría registrada correctamente.";
+                claseMensaje = "alert-success";
+                await CargarCategorias();
+            }
+            else
+            {
+                mensaje = "No se pudo registrar la categoría.";
+                claseMensaje = "alert-danger";
+            }
+        }
+        catch (Exception)
+        {
+            mensaje = "Error de conexión con la API.";
+            claseMensaje = "alert-danger";
+        }
+    }
+}

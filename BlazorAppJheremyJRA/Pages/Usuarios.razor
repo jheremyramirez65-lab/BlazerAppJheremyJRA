@@ -1,0 +1,92 @@
+﻿@page "/usuarios"
+
+<h3>Gestión de usuarios</h3>
+
+<div class="mb-3">
+    <input class="form-control"
+           placeholder="Buscar usuario..."
+           @bind="busqueda" />
+</div>
+
+<button class="btn btn-primary mb-3">
+    Nuevo usuario
+</button>
+
+<table class="table table-bordered">
+
+    <thead>
+        <tr>
+            <th>Usuario</th>
+            <th>Correo</th>
+            <th>Rol</th>
+            <th>Estado</th>
+            <th>Acciones</th>
+        </tr>
+    </thead>
+
+    <tbody>
+
+        @foreach (var usuario in listaUsuarios)
+        {
+            <tr>
+                <td>@usuario.nombre @usuario.apellido</td>
+                <td>@usuario.correo</td>
+                <td>@usuario.rol</td>
+                <td>
+                    @(usuario.estado ? "Activo" : "Inactivo")
+                </td>
+                <td>
+                    @if (rolActual == "Administrador")
+                    {
+                        <button class="btn btn-warning btn-sm me-2">
+                            Editar
+                        </button>
+
+                        <button class="btn btn-danger btn-sm">
+                            Desactivar
+                        </button>
+                    }
+                    else if (rolActual == "Editor")
+                    {
+                        <button class="btn btn-warning btn-sm">
+                            Editar
+                        </button>
+                    }
+                </td>
+            </tr>
+        }
+
+    </tbody>
+
+</table>
+
+@code {
+    private string rolActual = "Administrador";
+
+    private string busqueda = "";
+
+    private List<UsuarioCLS> listaUsuarios = new()
+    {
+        new UsuarioCLS
+        {
+            id = 1,
+            nombre = "Juan",
+            apellido = "Pérez",
+            correo = "juan@gmail.com",
+            rol = "Administrador",
+            estado = true,
+            fechaCreacion = DateTime.Now
+        },
+
+        new UsuarioCLS
+        {
+            id = 2,
+            nombre = "Ana",
+            apellido = "López",
+            correo = "ana@gmail.com",
+            rol = "Editor",
+            estado = true,
+            fechaCreacion = DateTime.Now
+        }
+    };
+}

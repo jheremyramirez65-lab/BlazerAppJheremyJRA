@@ -1,0 +1,171 @@
+﻿@page "/autores"
+
+@using BlazorAppJheremyJRA.Entities
+@using BlazorAppJheremyJRA.Services
+
+@inject AutorService autorService
+@inject NavigationManager navigationManager
+@inject IJSRuntime JS
+
+<div class="container mt-4">
+
+    <div class="d-flex justify-content-between align-items-center mb-3">
+
+        <div>
+            <h3 class="mb-1">Lista de Autores</h3>
+
+            <p class="text-muted mb-0">
+                Administración de autores registrados
+            </p>
+        </div>
+
+        <a href="AutorForm/0"
+           class="btn btn-primary">
+            Nuevo Autor
+        </a>
+
+    </div>
+
+    @if (!string.IsNullOrEmpty(mensaje))
+    {
+        <div class="alert alert-success alert-dismissible fade show">
+
+            @mensaje
+
+            <button type="button"
+                    class="btn-close"
+                    @onclick="LimpiarMensaje">
+            </button>
+
+        </div>
+    }
+
+    @if (listaAutores.Count > 0)
+    {
+        <div class="card shadow">
+
+            <div class="card-header bg-dark text-white">
+                <h5 class="mb-0">Autores Registrados</h5>
+            </div>
+
+            <div class="card-body p-0">
+
+                <div class="table-responsive">
+
+                    <table class="table table-bordered table-hover mb-0">
+
+                        <thead class="table-dark">
+                            <tr>
+                                <th>ID</th>
+                                <th>Imagen</th>
+                                <th>Nombre</th>
+                                <th>Ap. Paterno</th>
+                                <th>Ap. Materno</th>
+                                <th>Sexo</th>
+                                <th>País</th>
+                                <th>Descripción</th>
+                                <th>Acciones</th>
+                            </tr>
+                        </thead>
+
+                        <tbody>
+
+                            @foreach (var autor in listaAutores)
+                            {
+                                <tr>
+
+                                    <td>@autor.idAutor</td>
+
+                                    <td class="text-center">
+                                        <img src="@autor.imagen"
+                                             width="80"
+                                             height="80"
+                                             class="rounded-circle"
+                                             style="object-fit:cover;" />
+                                    </td>
+
+                                    <td><strong>@autor.nombre</strong></td>
+
+                                    <td>@autor.apPaterno</td>
+
+                                    <td>@autor.apMaterno</td>
+
+                                    <td>@autor.nombreSexo</td>
+
+                                    <td>@autor.nombrePais</td>
+
+                                    <td>@autor.descripcion</td>
+
+                                    <td class="text-center">
+
+                                        <button class="btn btn-warning btn-sm me-1"
+                                                @onclick="() => Editar(autor.idAutor)">
+                                            Editar
+                                        </button>
+
+                                        <button class="btn btn-danger btn-sm"
+                                                @onclick="() => Eliminar(autor.idAutor)">
+                                            Eliminar
+                                        </button>
+
+                                    </td>
+
+                                </tr>
+                            }
+
+                        </tbody>
+
+                    </table>
+
+                </div>
+
+            </div>
+
+        </div>
+    }
+    else
+    {
+        <div class="alert alert-info text-center">
+            <h5>No hay autores registrados</h5>
+        </div>
+    }
+
+</div>
+
+@code {
+
+    List<AutorListCLS> listaAutores = new();
+
+    string mensaje = "";
+
+    protected override async Task OnInitializedAsync()
+    {
+        listaAutores = await autorService.listarAutores();
+    }
+
+    private void Editar(int idAutor)
+    {
+        navigationManager.NavigateTo($"/AutorForm/{idAutor}");
+    }
+
+    private async Task Eliminar(int idAutor)
+    {
+        bool confirmar = await JS.InvokeAsync<bool>(
+            "confirm",
+            "¿Está seguro que desea eliminar este autor?");
+
+        if (confirmar)
+        {
+            await autorService.eliminarAutor(idAutor);
+
+            listaAutores = await autorService.listarAutores();
+
+            mensaje = "El autor se eliminó correctamente.";
+        }
+    }
+
+    private void LimpiarMensaje()
+    {
+        mensaje = "";
+    }
+}

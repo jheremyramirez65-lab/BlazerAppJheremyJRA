@@ -1,0 +1,200 @@
+﻿@using BlazorAppJheremyJRA.Entities
+@using BlazorAppJheremyJRA.Services
+
+@inject IJSRuntime JS
+@inject NavigationManager navigationManager
+@inject LibroService libroService
+
+@if (lista != null && lista.Count > 0)
+{
+    <h3>Libros Registrados</h3>
+
+    <table class="table table-bordered table-striped">
+
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Código</th>
+                <th>Imagen</th>
+                <th>Título</th>
+                <th>Autor</th>
+                <th>Editorial</th>
+                <th>Año</th>
+                <th>Páginas</th>
+                <th>Categoría</th>
+                <th>Tipo de Libro</th>
+                <th>Nombre archivo</th>
+                <th>Acciones</th>
+            </tr>
+        </thead>
+
+        <tbody>
+
+            @foreach (var libro in lista)
+            {
+                <tr>
+
+                    <td>
+                        @libro.idLibro
+                    </td>
+
+                    <td>
+                        @libro.codigo
+                    </td>
+
+                    <td>
+                        <img src="@obtenerImagen(libro.imagen)"
+                             style="width:60px;height:70px;object-fit:cover;" />
+                    </td>
+
+                    <td>
+                        @libro.titulo
+                    </td>
+
+                    <td>
+                        @libro.autor
+                    </td>
+
+                    <td>
+                        @libro.editorial
+                    </td>
+
+                    <td>
+                        @libro.anio
+                    </td>
+
+                    <td>
+                        @libro.numeroPaginas
+                    </td>
+
+                    <td>
+                        @libro.categoria
+                    </td>
+
+                    <td>
+                        @libro.nombretipolibro
+                    </td>
+
+
+                    <td>
+                        @if (!string.IsNullOrWhiteSpace(libro.nombrearchivo))
+                        {
+                            <a href="#"
+                               @onclick="() => descargar(libro.idLibro, libro.nombrearchivo!)"
+                               @onclick:preventDefault="true"
+                               style="cursor:pointer; text-decoration:underline;">
+
+                                @libro.nombrearchivo
+
+                            </a>
+                        }
+                        else
+                        {
+                            <span>Sin archivo</span>
+                        }
+                    </td>
+
+                    
+
+                    <td>
+
+                        <button class="btn btn-warning btn-sm me-1"
+                                @onclick="() => recuperarLibro(libro.idLibro)">
+                            Editar
+                        </button>
+
+                        <button class="btn btn-danger btn-sm"
+                                @onclick="() => eliminarLibro(libro.idLibro)">
+                            Eliminar
+                        </button>
+
+                    </td>
+
+                </tr>
+            }
+
+        </tbody>
+
+    </table>
+}
+else
+{
+    <div class="alert alert-info">
+        No hay libros registrados.
+    </div>
+}
+
+
+@code {
+
+    public List<LibroListCLS> lista { get; set; } = new();
+
+    private List<LibroListCLS> listaCompleta = new();
+
+
+    protected override async Task OnInitializedAsync()
+    {
+        await listarLibros();
+    }
+
+
+    private async Task listarLibros()
+    {
+        lista = await libroService.listarLibros();
+
+        listaCompleta = new List<LibroListCLS>(lista);
+    }
+
+
+    private string obtenerImagen(byte[]? buffer)
+    {
+        if (buffer == null || buffer.Length == 0)
+        {
+            return "img/usuario.png";
+        }
+
+        return "data:image/png;base64," +
+               Convert.ToBase64String(buffer);
+    }
+
+
+    private void recuperarLibro(int idlibro)
+    {
+        navigationManager.NavigateTo(
+            $"/LibroFormPage/{idlibro}"
+        );
+    }
+
+
+    private async Task eliminarLibro(int idlibro)
+    {
+        await libroService.eliminarLibro(idlibro);
+
+        await listarLibros();
+
+        await InvokeAsync(StateHasChanged);
+    }
+
+
+    public async Task filtrar(string titulo)
+    {
+        lista = await libroService.filtrarLibros(titulo);
+        StateHasChanged();
+    }
+
+
+    private async Task descargar(int idlibro, string nombrearchivo)
+    {
+        string base64 = await libroService.recuperarArchivoPorId(idlibro);
+
+        if (!string.IsNullOrWhiteSpace(base64))
+        {
+            await JS.InvokeVoidAsync(
+                "descargarArchivo",
+                nombrearchivo,
+                base64
+            );
+        }
+    }
+
+}

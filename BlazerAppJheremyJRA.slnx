@@ -1,0 +1,6 @@
+<Solution>
+  <Project Path="BlazorAppJheremyJRA.API/BlazorAppJheremyJRA.API.csproj" Id="b25cbc41-02ff-4a63-8e76-203418bcd61b" />
+  <Project Path="BlazorAppJheremyJRA.Entities/BlazorAppJheremyJRA.Entities.csproj" />
+  <Project Path="BlazorAppJheremyJRA.Shared/BlazorAppJheremyJRA.Shared.csproj" />
+  <Project Path="BlazorAppJheremyJRA/BlazorAppJheremyJRA.csproj" />
+</Solution>

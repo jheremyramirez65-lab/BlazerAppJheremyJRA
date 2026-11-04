@@ -1,0 +1,240 @@
+﻿@using BlazorAppJheremyJRA.Entities
+@using BlazorAppJheremyJRA.Services
+@using Microsoft.AspNetCore.Components.Forms
+
+@inject AutorService autorService
+
+<h2>@titulo</h2>
+
+<EditForm Model="@oAutorFormCLS"
+          OnValidSubmit="@Guardar">
+
+    <DataAnnotationsValidator />
+
+    <ValidationSummary class="alert alert-danger" />
+
+    <div class="row">
+
+        <div class="col-md-6 mb-3">
+            <label class="form-label">ID Autor</label>
+
+            <InputNumber class="form-control"
+                         @bind-Value="oAutorFormCLS.IdAutor"
+                         readonly />
+        </div>
+
+        <div class="col-md-6 mb-3">
+            <label class="form-label">Nombre</label>
+
+            <InputText class="form-control"
+                       placeholder="Ingrese el nombre"
+                       @bind-Value="oAutorFormCLS.Nombre" />
+
+            <ValidationMessage For="@(() => oAutorFormCLS.Nombre)" />
+        </div>
+
+        <div class="col-md-6 mb-3">
+            <label class="form-label">Apellido Paterno</label>
+
+            <InputText class="form-control"
+                       placeholder="Ingrese el apellido paterno"
+                       @bind-Value="oAutorFormCLS.ApPaterno" />
+
+            <ValidationMessage For="@(() => oAutorFormCLS.ApPaterno)" />
+        </div>
+
+        <div class="col-md-6 mb-3">
+            <label class="form-label">Apellido Materno</label>
+
+            <InputText class="form-control"
+                       placeholder="Ingrese el apellido materno"
+                       @bind-Value="oAutorFormCLS.ApMaterno" />
+
+            <ValidationMessage For="@(() => oAutorFormCLS.ApMaterno)" />
+        </div>
+
+        <div class="col-md-6 mb-3">
+            <label class="form-label">Sexo</label>
+
+            <InputSelect class="form-select"
+                         @bind-Value="oAutorFormCLS.IidSexo">
+
+                <option value="0">Seleccione</option>
+
+                @foreach (var sexo in listaSexo)
+                {
+                    <option value="@sexo.id">
+                        @sexo.nombre
+                    </option>
+                }
+
+            </InputSelect>
+
+            <ValidationMessage For="@(() => oAutorFormCLS.IidSexo)" />
+        </div>
+
+        <div class="col-md-6 mb-3">
+            <label class="form-label">País</label>
+
+            <InputSelect class="form-select"
+                         @bind-Value="oAutorFormCLS.IidPais">
+
+                <option value="0">Seleccione</option>
+
+                @foreach (var pais in listaPais)
+                {
+                    <option value="@pais.id">
+                        @pais.nombre
+                    </option>
+                }
+
+            </InputSelect>
+
+            <ValidationMessage For="@(() => oAutorFormCLS.IidPais)" />
+        </div>
+
+        <div class="col-md-6 mb-3">
+            <label class="form-label">Descripción</label>
+
+            <InputTextArea class="form-control"
+                           rows="4"
+                           @bind-Value="oAutorFormCLS.Descripcion" />
+
+            <ValidationMessage For="@(() => oAutorFormCLS.Descripcion)" />
+        </div>
+
+        <!-- IMAGEN -->
+        <div class="col-md-6 mb-3">
+
+            <label class="form-label">Seleccionar imagen</label>
+
+            <InputFile OnChange="SeleccionarImagen"
+                       accept="image/png,image/jpeg"
+                       class="form-control" />
+
+            <div class="mt-3">
+                <img src="@imagenPreview"
+                     width="150"
+                     height="150"
+                     class="img-thumbnail"
+                     style="object-fit:cover;"
+                     alt="Vista previa" />
+            </div>
+
+        </div>
+
+    </div>
+
+    <div class="mt-3">
+        <button type="submit"
+                class="btn btn-success me-2">
+            @(idAutor == 0 ? "Guardar Autor" : "Actualizar Autor")
+        </button>
+    </div>
+
+</EditForm>
+
+@code {
+
+    [Parameter]
+    public int idAutor { get; set; }
+
+    [Parameter]
+    public EventCallback<AutorFormCLS> GuardarClick { get; set; }
+
+    private string titulo = "Agregar Autor";
+
+    private AutorFormCLS oAutorFormCLS = new();
+
+    private List<ComboCLS> listaSexo = new();
+
+    private List<ComboCLS> listaPais = new();
+
+    private string imagenPreview = "img/usuario.png";
+
+    protected override async Task OnParametersSetAsync()
+    {
+        if (listaSexo.Count == 0)
+        {
+            listaSexo = await autorService.listarSexo();
+        }
+
+        if (listaPais.Count == 0)
+        {
+            listaPais = await autorService.listarPais();
+        }
+
+        if (idAutor == 0)
+        {
+            titulo = "Agregar Autor";
+
+            oAutorFormCLS = new AutorFormCLS();
+
+            imagenPreview = "img/usuario.png";
+
+            return;
+        }
+
+        titulo = "Editar Autor";
+
+        var autor = await autorService.recuperarAutorPorId(idAutor);
+
+        if (autor != null)
+        {
+            oAutorFormCLS = autor;
+
+            if (autor.Imagen != null && autor.Imagen.Length > 0)
+            {
+                imagenPreview =
+                    "data:image/png;base64," +
+                    Convert.ToBase64String(autor.Imagen);
+            }
+            else
+            {
+                imagenPreview = "img/usuario.png";
+            }
+        }
+    }
+
+    private async Task SeleccionarImagen(InputFileChangeEventArgs e)
+    {
+        var file = e.File;
+
+        if (file == null)
+            return;
+
+        using var stream = file.OpenReadStream(maxAllowedSize: 5 * 1024 * 1024);
+
+        using var ms = new MemoryStream();
+
+        await stream.CopyToAsync(ms);
+
+        var buffer = ms.ToArray();
+
+        oAutorFormCLS.Imagen = buffer;
+
+        imagenPreview =
+            "data:" +
+            file.ContentType +
+            ";base64," +
+            Convert.ToBase64String(buffer);
+
+        await InvokeAsync(StateHasChanged);
+    }
+
+    private async Task Guardar()
+    {
+        await GuardarClick.InvokeAsync(oAutorFormCLS);
+    }
+
+    public async Task LimpiarFormulario()
+    {
+        oAutorFormCLS = new AutorFormCLS();
+
+        imagenPreview = "img/usuario.png";
+
+        titulo = "Agregar Autor";
+
+        await InvokeAsync(StateHasChanged);
+    }
+}

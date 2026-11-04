@@ -1,0 +1,48 @@
+﻿@using BlazorAppJheremyJRA.Entities
+
+<div class="card mb-3">
+    <div class="card-body">
+
+        <label class="form-label">
+            Buscar libro por título
+        </label>
+
+        <div class="input-group">
+
+            <InputText class="form-control"
+                       placeholder="Ingrese título..."
+                       @bind-Value="titulo" />
+
+            <button class="btn btn-primary"
+                    @onclick="Buscar">
+                Buscar
+            </button>
+
+            <button class="btn btn-secondary"
+                    @onclick="Limpiar">
+                Limpiar
+            </button>
+
+        </div>
+
+    </div>
+</div>
+
+@code {
+
+    private string titulo = "";
+
+    [Parameter]
+    public EventCallback<string> BuscarClick { get; set; }
+
+    private async Task Buscar()
+    {
+        await BuscarClick.InvokeAsync(titulo);
+    }
+
+    private async Task Limpiar()
+    {
+        titulo = "";
+        await BuscarClick.InvokeAsync("");
+    }
+}
