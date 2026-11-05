@@ -1,88 +1,176 @@
 ﻿@page "/login"
+@layout AuthLayout
+@inject AuthService Auth
+@inject NavigationManager Navigation
+@using BlazorAppJheremyJRA.Services
 
-<h3>Iniciar sesión</h3>
+<PageTitle>Iniciar sesión</PageTitle>
 
-<div class="container mt-4">
-    <div class="row justify-content-center">
-        <div class="col-md-5">
+<div class="auth-card">
 
-            <div class="card shadow p-4">
+    <div class="text-center mb-4">
+        <div class="auth-logo d-lg-none"><i class="bi bi-book-half"></i></div>
+        <h2 class="auth-title">Bienvenido de nuevo</h2>
+        <p class="text-muted mb-0">Inicia sesión para continuar</p>
+    </div>
 
-                <h2 class="text-center mb-4">
-                    Iniciar sesión
-                </h2>
+    <EditForm Model="modelo" OnValidSubmit="IniciarSesion" novalidate>
 
-                <div class="mb-3">
-                    <label class="form-label">
-                        Correo electrónico / Usuario
-                    </label>
+        <DataAnnotationsValidator />
 
-                    <input type="text"
-                           class="form-control"
-                           @bind="usuario"
-                           placeholder="Ingrese su usuario" />
-                </div>
+        <fieldset disabled="@cargando" class="border-0 p-0 m-0">
 
-                <div class="mb-3">
-                    <label class="form-label">
-                        Contraseña
-                    </label>
-
-                    <input type="password"
-                           class="form-control"
-                           @bind="contrasena"
-                           placeholder="Ingrese su contraseña" />
-                </div>
-
-                @if (!string.IsNullOrEmpty(mensajeError))
-                {
-                    <div class="alert alert-danger">
-                        @mensajeError
-                    </div>
-                }
-
-                <button class="btn btn-primary w-100"
-                        @onclick="IniciarSesion">
-                    Iniciar sesión
-                </button>
-
-                <div class="text-center mt-3">
-
-                    <a href="/recuperar-password">
-                        ¿Olvidaste tu contraseña?
-                    </a>
-
-                </div>
-
-                <div class="text-center mt-2">
-
-                    <a href="/registro">
-                        Crear una cuenta
-                    </a>
-
-                </div>
-
+            <div class="mb-3">
+                <label for="correo" class="form-label">Correo electrónico</label>
+                <InputText @ref="correoInput"
+                           id="correo"
+                           type="email"
+                           class="form-control form-control-lg"
+                           placeholder="tucorreo@ejemplo.com"
+                           autocomplete="username"
+                           @bind-Value="modelo.Correo"
+                           @bind-Value:event="oninput" />
+                <ValidationMessage For="() => modelo.Correo" />
             </div>
 
-        </div>
+            <div class="mb-3">
+                <label for="password" class="form-label">Contraseña</label>
+                <div class="input-group">
+                    <InputText id="password"
+                               type="@(mostrarPassword ? "text" : "password")"
+                               class="form-control form-control-lg"
+                               placeholder="Tu contraseña"
+                               autocomplete="current-password"
+                               @bind-Value="modelo.Password"
+                               @bind-Value:event="oninput" />
+                    <button type="button"
+                            class="btn btn-outline-secondary"
+                            aria-label="@(mostrarPassword ? "Ocultar contraseña" : "Mostrar contraseña")"
+                            @onclick="() => mostrarPassword = !mostrarPassword">
+                        <i class="bi @(mostrarPassword ? "bi-eye-slash" : "bi-eye")"></i>
+                    </button>
+                </div>
+                <ValidationMessage For="() => modelo.Password" />
+            </div>
+
+            <div class="form-check mb-3">
+                <InputCheckbox id="recordarme" class="form-check-input" @bind-Value="recordarme" />
+                <label class="form-check-label" for="recordarme">Mantener la sesión iniciada</label>
+            </div>
+
+            <div aria-live="polite">
+                @if (!string.IsNullOrEmpty(mensajeError))
+                {
+                    <div class="alert alert-danger py-2" role="alert">
+                        <i class="bi bi-exclamation-triangle-fill me-1"></i> @mensajeError
+                    </div>
+                }
+            </div>
+
+            <button type="submit" class="btn btn-primary btn-lg w-100">
+                @if (cargando)
+                {
+                    <span class="spinner-border spinner-border-sm me-2" aria-hidden="true"></span>
+                    <span>Ingresando...</span>
+                }
+                else
+                {
+                    <span>Iniciar sesión</span>
+                }
+            </button>
+
+        </fieldset>
+
+    </EditForm>
+
+    <div class="text-center mt-4">
+        <span class="text-muted">¿No tienes cuenta?</span>
+        <a href="registro">Crear una cuenta</a>
     </div>
+
 </div>
 
 @code {
 
-    private string usuario = "";
-    private string contrasena = "";
+    [CascadingParameter]
+    private Task<AuthenticationState>? EstadoAuth { get; set; }
+
+    [Parameter, SupplyParameterFromQuery(Name = "returnUrl")]
+    public string? ReturnUrl { get; set; }
+
+    private readonly LoginRequestCLS modelo = new();
+    private InputText? correoInput;
+    private bool recordarme;
+    private bool mostrarPassword;
+    private bool cargando;
     private string mensajeError = "";
 
-    private void IniciarSesion()
+    protected override async Task OnInitializedAsync()
     {
-        if (string.IsNullOrWhiteSpace(usuario) ||
-            string.IsNullOrWhiteSpace(contrasena))
+        if (EstadoAuth is not null)
         {
-            mensajeError = "Debe ingresar usuario y contraseña.";
-            return;
+            var estado = await EstadoAuth;
+
+            if (estado.User.Identity?.IsAuthenticated == true)
+            {
+                Navigation.NavigateTo("panel", replace: true);
+            }
+        }
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender && correoInput?.Element is not null)
+        {
+            await correoInput.Element.Value.FocusAsync();
+        }
+    }
+
+    private async Task IniciarSesion()
+    {
+        if (cargando) return;
+
+        cargando = true;
+        mensajeError = "";
+
+        try
+        {
+            modelo.Correo = modelo.Correo.Trim();
+
+            var (ok, error) = await Auth.LoginAsync(modelo, recordarme);
+
+            if (ok)
+            {
+                Navigation.NavigateTo(DestinoSeguro(), replace: true);
+                return;
+            }
+
+            mensajeError = error ?? "No se pudo iniciar sesión.";
+            modelo.Password = "";
+        }
+        catch (Exception)
+        {
+            mensajeError = "Ocurrió un error inesperado. Inténtalo de nuevo.";
+            modelo.Password = "";
+        }
+        finally
+        {
+            cargando = false;
+        }
+    }
+
+    // Solo se acepta una ruta interna (evita redirecciones a otros sitios)
+    private string DestinoSeguro()
+    {
+        if (string.IsNullOrWhiteSpace(ReturnUrl) ||
+            ReturnUrl.Contains("://") ||
+            ReturnUrl.StartsWith("//") ||
+            ReturnUrl.StartsWith("login", StringComparison.OrdinalIgnoreCase) ||
+            ReturnUrl.StartsWith("registro", StringComparison.OrdinalIgnoreCase))
+        {
+            return "panel";
         }
 
-        mensajeError = "";
+        return ReturnUrl;
     }
 }
