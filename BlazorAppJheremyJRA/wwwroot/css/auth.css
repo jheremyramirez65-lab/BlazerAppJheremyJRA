@@ -1,0 +1,71 @@
+﻿.auth-wrapper {
+    display: flex;
+    min-height: 100vh;
+    background: #f4f6fb;
+}
+
+.auth-hero {
+    flex: 1;
+    align-items: center;
+    justify-content: center;
+    padding: 3rem;
+    color: #fff;
+    text-align: center;
+    background: linear-gradient(160deg, rgb(5, 39, 103) 0%, #3a0647 100%);
+}
+
+    .auth-hero h1 {
+        font-size: 2.4rem;
+        font-weight: 700;
+        margin-bottom: .75rem;
+    }
+
+    .auth-hero p {
+        max-width: 22rem;
+        margin: 0 auto;
+        opacity: .85;
+        font-size: 1.1rem;
+    }
+
+.auth-hero-icon {
+    font-size: 4rem;
+    margin-bottom: 1rem;
+}
+
+.auth-form-side {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 2rem 1rem;
+}
+
+.auth-card {
+    width: 100%;
+    max-width: 26rem;
+    padding: 2.25rem 2rem;
+    background: #fff;
+    border-radius: 1rem;
+    box-shadow: 0 10px 40px rgba(20, 30, 80, .12);
+}
+
+.auth-title {
+    font-weight: 700;
+    margin-bottom: .25rem;
+}
+
+.auth-logo {
+    font-size: 2.5rem;
+    color: #1b6ec2;
+    margin-bottom: .5rem;
+}
+
+.auth-card .validation-message {
+    font-size: .85rem;
+}
+
+@media (max-width: 991.98px) {
+    .auth-wrapper {
+        background: linear-gradient(160deg, rgb(5, 39, 103) 0%, #3a0647 100%);
+    }
+}

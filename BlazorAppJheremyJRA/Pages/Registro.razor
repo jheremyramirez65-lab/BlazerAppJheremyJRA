@@ -1,144 +1,136 @@
 ﻿@page "/registro"
+@layout AuthLayout
+@inject AuthService Auth
+@inject NavigationManager Navigation
+@using BlazorAppJheremyJRA.Services
 
-<h3>Crear una cuenta</h3>
+<PageTitle>Crear cuenta</PageTitle>
 
-<div class="container mt-4">
-    <div class="row justify-content-center">
-        <div class="col-md-6">
+<div class="auth-card">
 
-            <div class="card shadow p-4">
+    <div class="text-center mb-4">
+        <h2 class="auth-title">Crear una cuenta</h2>
+        <p class="text-muted mb-0">Completa tus datos para registrarte</p>
+    </div>
 
-                <h2 class="text-center mb-4">
-                    Crear una cuenta
-                </h2>
+    <EditForm Model="modelo" OnValidSubmit="Registrar" novalidate>
 
-                <div class="mb-3">
-                    <label class="form-label">
-                        Nombre completo
-                    </label>
+        <DataAnnotationsValidator />
 
-                    <input type="text"
-                           class="form-control"
-                           @bind="nombre"
-                           placeholder="Ingrese su nombre completo" />
+        <fieldset disabled="@cargando" class="border-0 p-0 m-0">
+
+            <div class="row g-2 mb-3">
+                <div class="col-6">
+                    <label for="nombre" class="form-label">Nombre</label>
+                    <InputText id="nombre" class="form-control" autocomplete="given-name"
+                               @bind-Value="modelo.Nombre" />
+                    <ValidationMessage For="() => modelo.Nombre" />
                 </div>
-
-                <div class="mb-3">
-                    <label class="form-label">
-                        Nombre de usuario
-                    </label>
-
-                    <input type="text"
-                           class="form-control"
-                           @bind="usuario"
-                           placeholder="Ingrese su nombre de usuario" />
+                <div class="col-6">
+                    <label for="apellido" class="form-label">Apellido</label>
+                    <InputText id="apellido" class="form-control" autocomplete="family-name"
+                               @bind-Value="modelo.Apellido" />
+                    <ValidationMessage For="() => modelo.Apellido" />
                 </div>
-
-                <div class="mb-3">
-                    <label class="form-label">
-                        Correo electrónico
-                    </label>
-
-                    <input type="email"
-                           class="form-control"
-                           @bind="correo"
-                           placeholder="Ingrese su correo" />
-                </div>
-
-                <div class="mb-3">
-                    <label class="form-label">
-                        Contraseña
-                    </label>
-
-                    <input type="password"
-                           class="form-control"
-                           @bind="contrasena"
-                           placeholder="Ingrese su contraseña" />
-                </div>
-
-                <div class="mb-3">
-                    <label class="form-label">
-                        Confirmar contraseña
-                    </label>
-
-                    <input type="password"
-                           class="form-control"
-                           @bind="confirmarContrasena"
-                           placeholder="Repita su contraseña" />
-                </div>
-
-                <div class="mb-3">
-                    <label class="form-label">
-                        Rol
-                    </label>
-
-                    <select class="form-select"
-                            @bind="rol">
-
-                        <option value="">Seleccione un rol</option>
-                        <option value="Usuario">Usuario</option>
-                        <option value="Editor">Editor</option>
-                        <option value="Administrador">Administrador</option>
-
-                    </select>
-                </div>
-
-                @if (!string.IsNullOrEmpty(mensajeError))
-                {
-                    <div class="alert alert-danger">
-                        @mensajeError
-                    </div>
-                }
-
-                <button class="btn btn-success w-100"
-                        @onclick="Registrarse">
-                    Registrarse
-                </button>
-
-                <div class="text-center mt-3">
-
-                    <a href="/login">
-                        ¿Ya tienes una cuenta? Iniciar sesión
-                    </a>
-
-                </div>
-
             </div>
 
-        </div>
+            <div class="mb-3">
+                <label for="usuario" class="form-label">Nombre de usuario</label>
+                <InputText id="usuario" class="form-control" autocomplete="username"
+                           @bind-Value="modelo.NombreUsuario" />
+                <ValidationMessage For="() => modelo.NombreUsuario" />
+            </div>
+
+            <div class="mb-3">
+                <label for="correo" class="form-label">Correo electrónico</label>
+                <InputText id="correo" type="email" class="form-control" autocomplete="email"
+                           @bind-Value="modelo.Correo" />
+                <ValidationMessage For="() => modelo.Correo" />
+            </div>
+
+            <div class="mb-3">
+                <label for="password" class="form-label">Contraseña</label>
+                <InputText id="password" type="password" class="form-control" autocomplete="new-password"
+                           @bind-Value="modelo.Password" />
+                <div class="form-text">Mínimo 8 caracteres, con mayúscula, minúscula y número.</div>
+                <ValidationMessage For="() => modelo.Password" />
+            </div>
+
+            <div class="mb-3">
+                <label for="confirmar" class="form-label">Confirmar contraseña</label>
+                <InputText id="confirmar" type="password" class="form-control" autocomplete="new-password"
+                           @bind-Value="modelo.ConfirmarPassword" />
+                <ValidationMessage For="() => modelo.ConfirmarPassword" />
+            </div>
+
+            <div aria-live="polite">
+                @if (!string.IsNullOrEmpty(mensajeError))
+                {
+                    <div class="alert alert-danger py-2" role="alert">
+                        <i class="bi bi-exclamation-triangle-fill me-1"></i> @mensajeError
+                    </div>
+                }
+            </div>
+
+            <button type="submit" class="btn btn-primary btn-lg w-100">
+                @if (cargando)
+                {
+                    <span class="spinner-border spinner-border-sm me-2" aria-hidden="true"></span>
+                    <span>Creando cuenta...</span>
+                }
+                else
+                {
+                    <span>Registrarse</span>
+                }
+            </button>
+
+        </fieldset>
+
+    </EditForm>
+
+    <div class="text-center mt-4">
+        <span class="text-muted">¿Ya tienes cuenta?</span>
+        <a href="login">Iniciar sesión</a>
     </div>
+
 </div>
 
 @code {
-
-    private string nombre = "";
-    private string usuario = "";
-    private string correo = "";
-    private string contrasena = "";
-    private string confirmarContrasena = "";
-    private string rol = "";
-
+    private readonly RegistroRequestCLS modelo = new();
+    private bool cargando;
     private string mensajeError = "";
 
-    private void Registrarse()
+    private async Task Registrar()
     {
-        if (string.IsNullOrWhiteSpace(nombre) ||
-            string.IsNullOrWhiteSpace(usuario) ||
-            string.IsNullOrWhiteSpace(correo) ||
-            string.IsNullOrWhiteSpace(contrasena) ||
-            string.IsNullOrWhiteSpace(confirmarContrasena) ||
-            string.IsNullOrWhiteSpace(rol))
-        {
-            mensajeError = "Todos los campos son obligatorios.";
-            return;
-        }
+        if (cargando) return;
 
-        if (contrasena != confirmarContrasena)
-        {
-            mensajeError = "Las contraseñas no coinciden.";
-            return;
-        }
-
+        cargando = true;
         mensajeError = "";
+
+        try
+        {
+            modelo.Nombre = modelo.Nombre.Trim();
+            modelo.Apellido = modelo.Apellido.Trim();
+            modelo.NombreUsuario = modelo.NombreUsuario.Trim();
+            modelo.Correo = modelo.Correo.Trim();
+
+            var (ok, error) = await Auth.RegistroAsync(modelo);
+
+            if (ok)
+            {
+                Navigation.NavigateTo("panel", replace: true);
+                return;
+            }
+
+            mensajeError = error ?? "No se pudo crear la cuenta.";
+        }
+        catch (Exception)
+        {
+            mensajeError = "Ocurrió un error inesperado. Inténtalo de nuevo.";
+        }
+        finally
+        {
+            cargando = false;
+        }
     }
 }

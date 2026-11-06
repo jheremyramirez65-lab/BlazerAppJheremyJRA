@@ -30,6 +30,55 @@ namespace BlazorAppJheremyJRA.Services
             proveedor.NotificarCambio();
         }
 
+
+        public async Task<(bool Ok, string Mensaje, string? Enlace)> OlvidePasswordAsync(OlvidePasswordCLS datos)
+        {
+            try
+            {
+                var r = await http.PostAsJsonAsync("api/Auth/olvide-password", datos);
+
+                if (!r.IsSuccessStatusCode)
+                {
+                    return (false, await LeerErrorAsync(r), null);
+                }
+
+                var json = await r.Content.ReadFromJsonAsync<JsonElement>();
+                var mensaje = json.TryGetProperty("mensaje", out var m) ? m.GetString() ?? "" : "";
+                string? enlace = json.TryGetProperty("enlaceDesarrollo", out var e)
+                                 && e.ValueKind == JsonValueKind.String ? e.GetString() : null;
+
+                return (true, mensaje, enlace);
+            }
+            catch (HttpRequestException)
+            {
+                return (false, "No se pudo conectar con el servidor.", null);
+            }
+            catch (JsonException)
+            {
+                return (false, "El servidor devolvió una respuesta inválida.", null);
+            }
+        }
+
+        public async Task<(bool Ok, string Mensaje)> RestablecerPasswordAsync(RestablecerPasswordCLS datos)
+        {
+            try
+            {
+                var r = await http.PostAsJsonAsync("api/Auth/restablecer-password", datos);
+
+                if (!r.IsSuccessStatusCode)
+                {
+                    return (false, await LeerErrorAsync(r));
+                }
+
+                return (true, "Contraseña actualizada. Ya puedes iniciar sesión.");
+            }
+            catch (HttpRequestException)
+            {
+                return (false, "No se pudo conectar con el servidor.");
+            }
+        }
+
+
         private async Task<(bool Ok, string? Error)> EnviarAsync(string url, object datos, bool recordar)
         {
             try

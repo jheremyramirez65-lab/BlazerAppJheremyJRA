@@ -1,11 +1,14 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using BlazorAppJheremyJRA.API.Models;
+using BlazorAppJheremyJRA.Entities;
+using Microsoft.AspNetCore.Authorization;
 
 namespace BlazorAppJheremyJRA.API.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    [Authorize(Policy = Politicas.Ver)]
     public class TipoLibroController : ControllerBase
     {
         private readonly BdbibliotecaContext bd;

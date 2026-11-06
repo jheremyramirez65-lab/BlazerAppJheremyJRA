@@ -21,12 +21,11 @@
         <fieldset disabled="@cargando" class="border-0 p-0 m-0">
 
             <div class="mb-3">
-                <label for="correo" class="form-label">Correo electrónico</label>
+                <label for="correo" class="form-label">Correo electrónico o usuario</label>
                 <InputText @ref="correoInput"
                            id="correo"
-                           type="email"
                            class="form-control form-control-lg"
-                           placeholder="tucorreo@ejemplo.com"
+                           placeholder="tucorreo@ejemplo.com o tu usuario"
                            autocomplete="username"
                            @bind-Value="modelo.Correo"
                            @bind-Value:event="oninput" />
@@ -53,9 +52,12 @@
                 <ValidationMessage For="() => modelo.Password" />
             </div>
 
-            <div class="form-check mb-3">
-                <InputCheckbox id="recordarme" class="form-check-input" @bind-Value="recordarme" />
-                <label class="form-check-label" for="recordarme">Mantener la sesión iniciada</label>
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <div class="form-check">
+                    <InputCheckbox id="recordarme" class="form-check-input" @bind-Value="recordarme" />
+                    <label class="form-check-label" for="recordarme">Mantener la sesión iniciada</label>
+                </div>
+                <a href="olvide-password">¿Olvidaste tu contraseña?</a>
             </div>
 
             <div aria-live="polite">

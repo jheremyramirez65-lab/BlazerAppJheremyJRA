@@ -1,11 +1,14 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using BlazorAppJheremyJRA.API.Models;
+using BlazorAppJheremyJRA.Entities;
+using Microsoft.AspNetCore.Authorization;
 
 namespace BlazorAppJheremyJRA.API.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    [Authorize(Policy = Politicas.Ver)]
     public class CategoriaController : ControllerBase
     {
         private readonly BdbibliotecaContext bd;
@@ -32,6 +35,7 @@ namespace BlazorAppJheremyJRA.API.Controllers
 
         // POST: api/Categoria
         [HttpPost]
+        [Authorize(Policy = Politicas.Crear)]
         public async Task<IActionResult> Registrar(
             [FromBody] Categoria categoria)
         {
@@ -83,6 +87,7 @@ namespace BlazorAppJheremyJRA.API.Controllers
 
         // POST: api/Categoria/1/libros/1
         [HttpPost("{idCategoria:int}/libros/{idLibro:int}")]
+        [Authorize(Policy = Politicas.Editar)]
         public async Task<IActionResult> AsignarLibro(
             int idCategoria,
             int idLibro)

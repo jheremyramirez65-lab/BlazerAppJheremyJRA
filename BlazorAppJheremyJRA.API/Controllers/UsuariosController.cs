@@ -4,6 +4,8 @@ using BlazorAppJheremyJRA.Entities;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using BlazorAppJheremyJRA.Entities;
+using Microsoft.AspNetCore.Authorization;
 
 namespace BlazorAppJheremyJRA.API.Controllers
 {
@@ -64,7 +66,7 @@ namespace BlazorAppJheremyJRA.API.Controllers
                     Apellido = u.Apellido,
                     NombreUsuario = u.NombreUsuario,
                     Correo = u.Correo,
-                    IdRol = u.Iidtipousuario,
+                    IdRol = u.Iidtipousuario ?? 0,
                     Rol = u.IidtipousuarioNavigation!.Nombre,
                     Habilitado = u.Bhabilitado == 1,
                     FechaCreacion = u.FechaCreacion

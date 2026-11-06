@@ -2,11 +2,13 @@
 using Microsoft.AspNetCore.Mvc;
 using BlazorAppJheremyJRA.API.Models;
 using BlazorAppJheremyJRA.Entities;
+using Microsoft.AspNetCore.Authorization;
 
 namespace BlazorAppJheremyJRA.API.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    [Authorize(Policy = Politicas.Ver)]
     public class AutorController : ControllerBase
     {
         private readonly BdbibliotecaContext bd;
@@ -131,6 +133,7 @@ namespace BlazorAppJheremyJRA.API.Controllers
         // GUARDAR AUTOR
         // =========================================================
         [HttpPost]
+        [Authorize(Policy = Politicas.Crear)]
         public IActionResult guardarAutor([FromBody] AutorFormCLS oAutor)
         {
             try
@@ -162,6 +165,7 @@ namespace BlazorAppJheremyJRA.API.Controllers
         // ACTUALIZAR AUTOR
         // =========================================================
         [HttpPut("{idautor:int}")]
+        [Authorize(Policy = Politicas.Editar)]
         public IActionResult actualizarAutor(
             int idautor,
             [FromBody] AutorFormCLS oAutor)
@@ -208,6 +212,7 @@ namespace BlazorAppJheremyJRA.API.Controllers
         // ELIMINAR AUTOR DE FORMA LÓGICA
         // =========================================================
         [HttpDelete("{idautor:int}")]
+        [Authorize(Policy = Politicas.Eliminar)]
         public IActionResult eliminarAutor(int idautor)
         {
             try

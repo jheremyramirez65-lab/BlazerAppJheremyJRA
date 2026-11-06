@@ -31,6 +31,7 @@ public partial class BdbibliotecaContext : DbContext
     public virtual DbSet<TipoLibro> TipoLibros { get; set; }
     public virtual DbSet<TipoUsuario> TipoUsuarios { get; set; }
     public virtual DbSet<Usuario> Usuarios { get; set; }
+    public virtual DbSet<RecuperacionPassword> RecuperacionPasswords { get; set; }
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
 #warning To protect potentially sensitive information in your connection string, you should move it out of source code. You can avoid scaffolding the connection string by using the Name= syntax to read it from configuration - see https://go.microsoft.com/fwlink/?linkid=2131148. For more guidance on storing connection strings, see https://go.microsoft.com/fwlink/?LinkId=723263.
         => optionsBuilder.UseSqlServer("Server=(localdb)\\MSSQLLocalDB;Database=BDBIBLIOTECA;Integrated Security=True;Encrypt=False;TrustServerCertificate=True");
@@ -348,9 +349,15 @@ public partial class BdbibliotecaContext : DbContext
                 .IsUnicode(false)
                 .HasColumnName("PASSWORD");
 
+            entity.Property(e => e.Apellido).HasMaxLength(100).IsUnicode(false).HasColumnName("APELLIDO");
+            entity.Property(e => e.NombreUsuario).HasMaxLength(50).IsUnicode(false).HasColumnName("NOMBREUSUARIO");
+            entity.Property(e => e.FechaCreacion).HasColumnType("datetime").HasColumnName("FECHACREACION");
+
             entity.HasOne(d => d.IidtipousuarioNavigation).WithMany(p => p.Usuarios)
                 .HasForeignKey(d => d.Iidtipousuario)
                 .HasConstraintName("FK_Usuario_TipoUsuario");
+
+            
         });
 
         modelBuilder.Entity<Categoria>(entity =>
@@ -386,6 +393,19 @@ public partial class BdbibliotecaContext : DbContext
                j.HasKey("IdLibro", "IdCategoria");
                j.ToTable("LibroCategoria");
            });
+
+
+        modelBuilder.Entity<RecuperacionPassword>(entity =>
+        {
+            entity.HasKey(e => e.Iidrecuperacion);
+            entity.ToTable("RecuperacionPassword");
+            entity.Property(e => e.Iidrecuperacion).HasColumnName("IIDRECUPERACION");
+            entity.Property(e => e.Iidusuario).HasColumnName("IIDUSUARIO");
+            entity.Property(e => e.TokenHash).HasMaxLength(64).IsUnicode(false).HasColumnName("TOKENHASH");
+            entity.Property(e => e.Expira).HasColumnType("datetime").HasColumnName("EXPIRA");
+            entity.Property(e => e.Usado).HasColumnName("USADO");
+            entity.Property(e => e.Fecha).HasColumnType("datetime").HasColumnName("FECHA");
+        });
 
 
         OnModelCreatingPartial(modelBuilder);

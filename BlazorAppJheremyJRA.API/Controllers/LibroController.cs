@@ -5,11 +5,13 @@ using Microsoft.EntityFrameworkCore;
 using BlazorAppJheremyJRA.API.Models;
 using BlazorAppJheremyJRA.Entities;
 using BlazorAppJheremyJRA.API.DTOs;
+using Microsoft.AspNetCore.Authorization;
 
 namespace BlazorAppJheremyJRA.API.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    [Authorize(Policy = Politicas.Ver)]
     public class LibroController : ControllerBase
     {
         private readonly BdbibliotecaContext bd;
@@ -231,6 +233,7 @@ namespace BlazorAppJheremyJRA.API.Controllers
         // =========================================================
 
         [HttpDelete("{idlibro}")]
+        [Authorize(Policy = Politicas.Eliminar)]
         public IActionResult eliminarLibro(int idlibro)
         {
             try
@@ -257,6 +260,7 @@ namespace BlazorAppJheremyJRA.API.Controllers
         // =========================================================
 
         [HttpPost]
+        [Authorize(Policy = Politicas.Crear)]
         public IActionResult guardarLibro(
             [FromBody] LibroFormCLS oLibroFormCLS)
         {
@@ -361,6 +365,7 @@ namespace BlazorAppJheremyJRA.API.Controllers
         // =========================================================
 
         [HttpPut("{idlibro}")]
+        [Authorize(Policy = Politicas.Editar)]
         public IActionResult Actualizar(
             int idlibro,
             LibroFormCLS libro)
