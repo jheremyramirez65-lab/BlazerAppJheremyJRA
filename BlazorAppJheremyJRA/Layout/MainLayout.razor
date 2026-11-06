@@ -1,12 +1,29 @@
 ﻿@inherits LayoutComponentBase
+@inject AuthService Auth
+@inject NavigationManager Navigation
+@using BlazorAppJheremyJRA.Services
+
 <div class="page">
     <div class="sidebar">
         <NavMenu />
     </div>
 
     <main>
-        <div class="top-row px-4">
-            <a href="https://learn.microsoft.com/aspnet/core/" target="_blank">About</a>
+        <div class="top-row px-4 d-flex justify-content-end align-items-center gap-3">
+            <AuthorizeView>
+                <Authorized>
+                    <span class="text-muted">
+                        <i class="bi bi-person-circle me-1"></i>@context.User.Identity?.Name
+                        <span class="badge bg-secondary ms-1">@context.User.FindFirst("role")?.Value</span>
+                    </span>
+                    <button class="btn btn-sm btn-outline-danger" @onclick="CerrarSesion">
+                        <i class="bi bi-box-arrow-right"></i> Cerrar sesión
+                    </button>
+                </Authorized>
+                <NotAuthorized>
+                    <a href="login" class="btn btn-sm btn-primary">Iniciar sesión</a>
+                </NotAuthorized>
+            </AuthorizeView>
         </div>
 
         <article class="content px-4">
@@ -14,3 +31,11 @@
         </article>
     </main>
 </div>
+
+@code {
+    private async Task CerrarSesion()
+    {
+        await Auth.LogoutAsync();
+        Navigation.NavigateTo("login", replace: true);
+    }
+}
