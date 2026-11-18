@@ -27,8 +27,7 @@
                            class="form-control form-control-lg"
                            placeholder="tucorreo@ejemplo.com o tu usuario"
                            autocomplete="username"
-                           @bind-Value="modelo.Correo"
-                           @bind-Value:event="oninput" />
+                           @bind-Value="modelo.Correo" />
                 <ValidationMessage For="() => modelo.Correo" />
             </div>
 
@@ -40,8 +39,7 @@
                                class="form-control form-control-lg"
                                placeholder="Tu contraseña"
                                autocomplete="current-password"
-                               @bind-Value="modelo.Password"
-                               @bind-Value:event="oninput" />
+                               @bind-Value="modelo.Password" />
                     <button type="button"
                             class="btn btn-outline-secondary"
                             aria-label="@(mostrarPassword ? "Ocultar contraseña" : "Mostrar contraseña")"

@@ -8,5 +8,7 @@
         public DateTime Expira { get; set; }
         public bool Usado { get; set; }
         public DateTime Fecha { get; set; }
+
+        public virtual Usuario? IidusuarioNavigation { get; set; }
     }
 }

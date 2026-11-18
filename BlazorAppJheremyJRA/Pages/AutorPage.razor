@@ -1,5 +1,7 @@
 ﻿@page "/autores"
 
+@attribute [Authorize(Policy = Politicas.AdministrarUsuarios)]
+
 @using BlazorAppJheremyJRA.Entities
 @using BlazorAppJheremyJRA.Services
 

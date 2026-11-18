@@ -1,4 +1,6 @@
 ﻿@page "/categoria"
+
+@attribute [Authorize(Policy = Politicas.AdministrarUsuarios)]
 @using BlazorAppJheremyJRA.Services
 @inject CategoriaService servicio
 

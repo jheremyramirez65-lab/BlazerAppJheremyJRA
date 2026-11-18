@@ -6,6 +6,7 @@ using Microsoft.IdentityModel.Tokens;
 using BlazorAppJheremyJRA.API.Models;
 using BlazorAppJheremyJRA.API.Services;
 using BlazorAppJheremyJRA.Entities;
+using Microsoft.OpenApi.Models;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -16,7 +17,33 @@ builder.Services.AddDbContext<BdbibliotecaContext>(options =>
         "Server=(localdb)\\MSSQLLocalDB;Database=BDBIBLIOTECA;Integrated Security=True;Encrypt=False;TrustServerCertificate=True"));
 
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
+builder.Services.AddSwaggerGen(options =>
+{
+    options.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
+    {
+        Name = "Authorization",
+        Type = SecuritySchemeType.Http,
+        Scheme = "bearer",
+        BearerFormat = "JWT",
+        In = ParameterLocation.Header,
+        Description = "Introduce tu token JWT."
+    });
+
+    options.AddSecurityRequirement(new OpenApiSecurityRequirement
+    {
+        {
+            new OpenApiSecurityScheme
+            {
+                Reference = new OpenApiReference
+                {
+                    Type = ReferenceType.SecurityScheme,
+                    Id = "Bearer"
+                }
+            },
+            Array.Empty<string>()
+        }
+    });
+});
 
 builder.Services.AddCors(options =>
 {

@@ -405,6 +405,11 @@ public partial class BdbibliotecaContext : DbContext
             entity.Property(e => e.Expira).HasColumnType("datetime").HasColumnName("EXPIRA");
             entity.Property(e => e.Usado).HasColumnName("USADO");
             entity.Property(e => e.Fecha).HasColumnType("datetime").HasColumnName("FECHA");
+
+            entity.HasOne(d => d.IidusuarioNavigation)
+    .WithMany()
+    .HasForeignKey(d => d.Iidusuario)
+    .HasConstraintName("FK_RecuperacionPassword_Usuario");
         });
 
 

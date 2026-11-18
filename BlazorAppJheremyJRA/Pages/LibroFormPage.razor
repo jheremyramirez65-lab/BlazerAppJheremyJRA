@@ -1,5 +1,7 @@
 ﻿@page "/LibroFormPage/{idLibro:int}"
 
+@attribute [Authorize(Policy = Politicas.AdministrarUsuarios)]
+
 @using BlazorAppJheremyJRA.Entities
 @using BlazorAppJheremyJRA.Services
 @using BlazorAppJheremyJRA.Components.Libro
